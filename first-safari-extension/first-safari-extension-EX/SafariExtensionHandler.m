@@ -24,7 +24,19 @@
 
 - (void)toolbarItemClickedInWindow:(SFSafariWindow *)window {
     // This method will be called when your toolbar item is clicked.
-    NSLog(@"The extension's toolbar item was clicked");
+    // NSLog(@"The extension's toolbar item was clicked");
+
+//    [window openTabWithURL:[NSURL URLWithString:@"http://www.baidu.com"] makeActiveIfPossible:YES completionHandler:^(SFSafariTab * _Nullable activeTab){
+//
+//    }];
+    //return;
+    [window getActiveTabWithCompletionHandler:^(SFSafariTab * _Nullable activeTab) {
+		[activeTab getActivePageWithCompletionHandler:^(SFSafariPage * _Nullable activePage) {
+			// Invoke handleMessage() in script.js.  UserInfo is ignored, just for example purposes.
+			
+			[activePage dispatchMessageToScriptWithName:@"message" userInfo:@{ @"myKey": @"myValue" }];
+		}];
+	}];
 }
 
 - (void)validateToolbarItemInWindow:(SFSafariWindow *)window validationHandler:(void (^)(BOOL enabled, NSString *badgeText))validationHandler {
@@ -34,6 +46,12 @@
 
 - (SFSafariExtensionViewController *)popoverViewController {
     return [SafariExtensionViewController sharedController];
+}
+
+- (void)messageReceivedFromContainingAppWithName:(NSString *)messageName
+                                        userInfo:(NSDictionary<NSString *,id> *)userInfo
+{
+    NSLog(@"The extension received a message (%@) from ContainingApp with userInfo (%@)", messageName, userInfo);
 }
 
 @end
